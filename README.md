@@ -1,1 +1,1 @@
-Team whiteSpace
+TEAD whiteSpace
