@@ -1,7 +1,7 @@
 from django.db import models
 
 class Review(models.Model):
-    author  = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='author')
+    author  = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='author')
     product = models.ForeignKey('orders.OrderProduct', on_delete=models.CASCADE)
     text    = models.TextField()
     rating  = models.SmallIntegerField()
@@ -12,7 +12,7 @@ class Review(models.Model):
 
 class ReviewImage(models.Model):
     review    = models.ForeignKey(Review, on_delete=models.CASCADE)
-    image_url = models.URLField(max_length=500)
+    image_url = models.URLField(max_length=5000)
     
     class Meta:
         db_table = 'review_images'

@@ -11,10 +11,10 @@ class Product(models.Model):
     price         = models.DecimalField(max_digits=8, decimal_places=2)
     description   = models.CharField(max_length=255)
     discount_rate = models.DecimalField(max_digits=3, decimal_places=2)
-    thumbnail_url = models.URLField(max_length=500)
+    thumbnail_url = models.URLField(max_length=5000)
     size          = models.ManyToManyField('Size', through='ColorSizeOption')
     color         = models.ManyToManyField('Color', through='ColorSizeOption')
-    category      = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category      = models.ForeignKey(Category, on_delete=models.SET_NULL,null=True)
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
     
@@ -22,7 +22,7 @@ class Product(models.Model):
         db_table = 'products'
 
 class SubImage(models.Model):
-    image_url = models.URLField(max_length=500)
+    image_url = models.URLField(max_length=5000)
     color     = models.ForeignKey('Color', on_delete=models.CASCADE, null=True, blank=True)
     product   = models.ForeignKey(Product, on_delete=models.CASCADE)
     
@@ -30,7 +30,7 @@ class SubImage(models.Model):
         db_table = 'sub_images'
 
 class DescriptionImage(models.Model):
-    image_url = models.URLField(max_length=500)
+    image_url = models.URLField(max_length=5000)
     product   = models.ForeignKey(Product, on_delete=models.CASCADE)
     sequence  = models.SmallIntegerField()
 
@@ -51,10 +51,10 @@ class Size(models.Model):
         db_table = 'names'
 
 class BundleOption(models.Model):
-    name    = models.CharField(max_length=45, unique=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    price   = models.DecimalField(max_digits=8, decimal_places=2)
-    stock   = models.IntegerField()
+    name      = models.CharField(max_length=45, unique=True)
+    product   = models.ForeignKey(Product, on_delete=models.CASCADE)
+    price_gap = models.DecimalField(max_digits=8, decimal_places=2)
+    stock     = models.IntegerField()
     
     class Meta:
         db_table = 'bundle_options'
@@ -69,7 +69,7 @@ class ColorSizeOption(models.Model):
         db_table = 'color_size_options'
 
 class BannerImage(models.Model):
-    image_url = models.URLField(max_length=500)
+    image_url = models.URLField(max_length=5000)
     
     class Meta:
         db_table = 'banner_images'

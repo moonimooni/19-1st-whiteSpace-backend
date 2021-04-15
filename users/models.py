@@ -6,12 +6,12 @@ class User(models.Model):
     name         = models.CharField(max_length=45)
     phone_number = models.CharField(max_length=45, unique=True)
     is_active    = models.BooleanField(default=True)
-    mileage      = models.IntegerField()
+    mileage      = models.PositiveIntegerField(default=0)
     coupon       = models.ManyToManyField('Coupon', through='UserCoupon')
     wish         = models.ManyToManyField('products.Product', through='WishList')
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         db_table = 'users'
 
@@ -22,7 +22,7 @@ class Address(models.Model):
     detail_address = models.CharField(max_length=100)
     is_main        = models.BooleanField()
     phone_number   = models.CharField(max_length=45)
-    
+
     class Meta:
         db_table = 'addresses'
 
@@ -30,7 +30,7 @@ class WishList(models.Model):
     user       = models.ForeignKey(User, on_delete=models.CASCADE)
     product    = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     is_deleted = models.BooleanField()
-    
+
     class Meta:
         db_table = 'wish_lists'
 
@@ -39,7 +39,7 @@ class Coupon(models.Model):
     discount_rate  = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)
     discount_price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     valid_days     = models.SmallIntegerField()
-    
+
     class Meta:
         db_table = 'coupons'
 
@@ -48,6 +48,6 @@ class UserCoupon(models.Model):
     coupon    = models.ForeignKey(Coupon, on_delete=models.CASCADE)
     is_used   = models.SmallIntegerField()
     expire_at = models.DateTimeField()
-    
+
     class Meta:
         db_table = 'users_coupons'
