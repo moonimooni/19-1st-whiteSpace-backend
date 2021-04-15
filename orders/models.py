@@ -22,3 +22,9 @@ class OrderProduct(models.Model):
 
     class Meta:
         db_table = 'order_products'
+
+class Status(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        db_table = 'status'
