@@ -21,8 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY  = my_settings.SECRET_KEY
-ALGORITHM   = my_settinss.ALGORITHM
+SECRET      = my_settings.SECRET
+ALGORITHM   = my_settings.ALGORITHM
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'users',
+    'products',
+    'reviews',
+    'orders',
+    
 ]
 
 MIDDLEWARE = [
@@ -143,3 +148,4 @@ CORS_ALLOW_HEADERS = (
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    )
