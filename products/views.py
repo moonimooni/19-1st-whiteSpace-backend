@@ -9,28 +9,19 @@ from .models import Category, Product, BannerImage
 
 class NavView(View):
     def get(self, request):
-        category_names = []
-        
-        categories = Category.objects.all()
-        
-        for category in categories:
-            category_info = {
-                'category_id' : category.id,
-                'category_name' : category.name
-            }
-            category_names.append(category_info)
+        categories = [
+            {
+                "category_id" : category.id,
+                "category_name" : category.name
+            } for category in Category.objects.all()
+        ]
 
-        return JsonResponse({'categories' : category_names}, status=200)
+        return JsonResponse({'categories' : categories}, status=200)
 
 class MainView(View):
     def get(self, request):
-        banner_images = []
-        best_sellers  = []
         
-        banner_urls = BannerImage.objects.all()
-
-        for banner in banner_urls:
-            banner_images.append(banner.image_url)
+        banner_images = [banner.image_url for banner in BannerImage.objects.all()]
 
         best_sellers_qs = Product.objects.annotate(sales_record = Sum('orderproduct__quantity'))
         best_sellers_qs = best_sellers_qs.order_by('-sales_record')[:3]
@@ -45,7 +36,8 @@ class MainView(View):
                     default = False
                 )
             )
-
+            
+        best_sellers = []
         for product in best_sellers_qs:
             bundles_stock     = sum(product.bundleoption_set.values_list('stock', flat=True))
             color_sizes_stock = sum(product.colorsizeoption_set.values_list('stock', flat=True))
