@@ -307,3 +307,4 @@ tags
 
 my_settings.py
 .csv
+.db_backup
