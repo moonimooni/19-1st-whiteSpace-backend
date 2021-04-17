@@ -1,7 +1,7 @@
 import datetime
 
 from django.utils     import timezone
-from django.db.models import When, Case, Sum
+from django.db.models import When, Case
 
 def annotate_is_new(queryset):
     return queryset.annotate(

@@ -3,7 +3,7 @@ import datetime
 from django.utils         import timezone
 from django.views         import View
 from django.http.response import JsonResponse
-from django.db.models     import When, Case, Sum
+from django.db.models     import Sum
 
 from .models import Category, Product, BannerImage
 from .utils  import annotate_is_new, calculate_stock
@@ -16,7 +16,7 @@ class NavView(View):
                 "category_name" : category.name
             } for category in Category.objects.all()
         ]
-        
+
         return JsonResponse({'categories' : categories}, status=200)
 
 class MainView(View):
