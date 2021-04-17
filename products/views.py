@@ -6,6 +6,7 @@ from django.http.response import JsonResponse
 from django.db.models     import When, Case, Sum
 
 from .models import Category, Product, BannerImage
+from .utils  import annotate_is_new, calculate_stock
 
 class NavView(View):
     def get(self, request):
@@ -15,7 +16,7 @@ class NavView(View):
                 "category_name" : category.name
             } for category in Category.objects.all()
         ]
-
+        
         return JsonResponse({'categories' : categories}, status=200)
 
 class MainView(View):
@@ -23,33 +24,21 @@ class MainView(View):
         
         banner_images = [banner.image_url for banner in BannerImage.objects.all()]
 
-        best_sellers_qs = Product.objects.annotate(sales_record = Sum('orderproduct__quantity'))
-        best_sellers_qs = best_sellers_qs.order_by('-sales_record')[:3]
+        best_sellers_qs = annotate_is_new(
+            Product.objects
+                .annotate(sales_record = Sum('orderproduct__quantity'))
+                .order_by('-sales_record')[:3]
+        )
 
-        best_sellers_qs = Product.objects \
-            .annotate(
-                is_new = Case(
-                    When(
-                        created_at__gte = timezone.now() - datetime.timedelta(days=1), 
-                        then=True
-                    ),
-                    default = False
-                )
-            )
-            
-        best_sellers = []
-        for product in best_sellers_qs:
-            bundles_stock     = sum(product.bundleoption_set.values_list('stock', flat=True))
-            color_sizes_stock = sum(product.colorsizeoption_set.values_list('stock', flat=True))
-
-            product_info = {
+        best_sellers = [
+            {
                 'id' : product.id,
                 'name' : product.name,
                 'price' : product.price,
                 'thumbnail_url' : product.thumbnail_url,
-                'stock' : bundles_stock + color_sizes_stock,
-                'is_new' : product.is_new
-            }
-            best_sellers.append(product_info)
-        
+                'stock' : calculate_stock(product),
+                'is_new' : product.is_new,
+            } for product in best_sellers_qs
+        ]
+
         return JsonResponse({'banner_images' : banner_images, 'best_sellers' : best_sellers}, status=200)
