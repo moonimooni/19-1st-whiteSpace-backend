@@ -27,15 +27,22 @@ class MainView(View):
                 .order_by('-sales_record')[:3]
         )
 
-        best_sellers = [
-            {
-                'id' : product.id,
-                'name' : product.name,
-                'price' : product.price,
-                'thumbnail_url' : product.thumbnail_url,
-                'stock' : calculate_stock(product),
-                'is_new' : product.is_new,
-            } for product in best_sellers_qs
-        ]
+        best_sellers = []
+
+        for product in best_sellers_qs:
+            stock      = calculate_stock(product)
+            is_limited = stock <= 20
+            
+            best_sellers.append(
+                {
+                    'id' : product.id,
+                    'name' : product.name,
+                    'price' : product.price,
+                    'thumbnail_url' : product.thumbnail_url,
+                    'stock' : stock,
+                    'is_limited' : is_limited,
+                    'is_new' : product.is_new,
+                }
+            )
 
         return JsonResponse({'banner_images' : banner_images, 'best_sellers' : best_sellers}, status=200)

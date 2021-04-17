@@ -15,7 +15,7 @@ def annotate_is_new(queryset):
     )
 
 def calculate_stock(product_obj):
-    bundles_stock = sum(product_obj.bundleoption_set.values_list('stock', flat=True))
+    bundles_stock     = sum(product_obj.bundleoption_set.values_list('stock', flat=True))
     color_sizes_stock = sum(product_obj.colorsizeoption_set.values_list('stock', flat=True))
 
     return bundles_stock + color_sizes_stock
