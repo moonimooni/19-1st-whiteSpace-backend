@@ -6,6 +6,7 @@ import jwt
 from django.views import View
 from django.http  import JsonResponse
 from .models      import User
+
 from .utils       import email_validator, password_validator, phone_validator
 from my_settings  import ALGORITHM, SECRET
 
