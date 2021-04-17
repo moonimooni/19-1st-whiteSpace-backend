@@ -1,6 +1,3 @@
-import datetime
-
-from django.utils         import timezone
 from django.views         import View
 from django.http.response import JsonResponse
 from django.db.models     import Sum
