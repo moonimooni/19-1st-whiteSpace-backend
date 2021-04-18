@@ -5,8 +5,6 @@ from django.db.models     import Sum
 from .models import Category, Product, BannerImage
 from .utils  import annotate_is_new, calculate_stock
 
-import time
-
 class NavView(View):
     def get(self, request):
         categories = [
