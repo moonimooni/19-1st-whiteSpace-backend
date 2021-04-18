@@ -5,6 +5,8 @@ from django.db.models     import Sum
 from .models import Category, Product, BannerImage
 from .utils  import annotate_is_new, calculate_stock
 
+import time
+
 class NavView(View):
     def get(self, request):
         categories = [
@@ -18,7 +20,6 @@ class NavView(View):
 
 class MainView(View):
     def get(self, request):
-        
         banner_images = [banner.image_url for banner in BannerImage.objects.all()]
 
         best_sellers_qs = annotate_is_new(
@@ -27,22 +28,18 @@ class MainView(View):
                 .order_by('-sales_record')[:3]
         )
 
-        best_sellers = []
+        products_stock = [calculate_stock(product) for product in best_sellers_qs]
 
-        for product in best_sellers_qs:
-            stock      = calculate_stock(product)
-            is_limited = stock <= 20
-            
-            best_sellers.append(
-                {
-                    'id' : product.id,
-                    'name' : product.name,
-                    'price' : product.price,
-                    'thumbnail_url' : product.thumbnail_url,
-                    'stock' : stock,
-                    'is_limited' : is_limited,
-                    'is_new' : product.is_new,
-                }
-            )
+        best_sellers = [
+            {
+                'id' : product.id,
+                'name' : product.name,
+                'price' : product.price,
+                'thumbnail_url' : product.thumbnail_url,
+                'stock' : stock,
+                'is_limited' : stock <= 20,
+                'is_new' : product.is_new,
+            } for product, stock in zip(best_sellers_qs, products_stock)
+        ]
 
         return JsonResponse({'banner_images' : banner_images, 'best_sellers' : best_sellers}, status=200)
