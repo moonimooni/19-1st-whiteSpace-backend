@@ -28,7 +28,7 @@ def login_decorator(func):
 
             payload = jwt.decode(access_token, SECRET, ALGORITHM)
 
-            if not User.objects.filter(id=payload['user_id'].exists():
+            if not User.objects.filter(id=payload['user_id']).exists():
                 return JsonResponse({'MESSAGE' : 'USER NOT FOUND'}, status=404)
 
             request.user = User.objects.get(id=payload['user_id'])
