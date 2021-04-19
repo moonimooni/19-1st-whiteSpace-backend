@@ -2,9 +2,8 @@ import json
 
 from django.http.response import JsonResponse
 from django.views         import View
-from django.db.models     import Q
 
-from .models         import Order, Status, OrderProduct
+from .models         import OrderProduct
 from users.utils     import login_decorator
 from products.models import Product
 
@@ -17,19 +16,12 @@ class CartView(View):
             products    = data['products']
             total_price = data['total_price']
 
-            cart = user.order_set.filter(status__name='장바구니').first()
-            
-            if not cart:
-                cart_status = Status.objects.get(name='장바구니')
-                cart = Order(
-                    user        = user,
-                    status      = cart_status,
-                    total_price = 0
-                )
-                cart.save()
+            cart, created = user.order_set.get_or_create(
+                status_id = 1,
+                defaults  = {'total_price' : 0}
+            )
 
-            newly_added_products = []
-            existing_products    = []
+            existing_products = []
 
             for product in products:
                 product_id    = product['product_id']
@@ -46,31 +38,20 @@ class CartView(View):
                     (color_size_id and not product.colorsizeoption_set.filter(id=color_size_id).exists()):
                         return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
 
-                existing_product = cart.orderproduct_set.filter(
-                    Q(product_id    = product_id) & 
-                    Q(color_size_id = color_size_id) & 
-                    Q(bundle_id     = bundle_id)).first()
+                product, created = cart.orderproduct_set.get_or_create(
+                    product_id    = product_id,
+                    color_size_id = color_size_id,
+                    bundle_id     = bundle_id,
+                    defaults      = {'quantity' : quantity}
+                )
 
-                if existing_product:
-                    existing_product.quantity += quantity
-                    existing_products.append(existing_product)
-                else:
-                    newly_added_products.append(
-                        OrderProduct(
-                            order         = cart,
-                            product_id    = product_id,
-                            color_size_id = color_size_id,
-                            bundle_id     = bundle_id,
-                            quantity      = quantity
-                        )
-                    )
+                if not created:
+                    product.quantity += quantity
+                    product.save()
 
-            OrderProduct.objects.bulk_update(existing_products, ['quantity'])
-            OrderProduct.objects.bulk_create(newly_added_products)
-            
             cart.total_price += total_price
             cart.save()
-
+            
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=200)
 
         except KeyError:
