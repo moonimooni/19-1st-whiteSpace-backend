@@ -2,7 +2,17 @@ from django.db import models
 
 class Review(models.Model):
     author  = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='author')
-    product = models.ForeignKey('orders.OrderProduct', on_delete=models.CASCADE)
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
+    color_size = models.ForeignKey('products.ColorSizeOption', 
+        on_delete = models.SET_NULL, 
+        null      = True, 
+        blank     = True
+    )
+    bundle  = models.ForeignKey('products.BundleOption', 
+        on_delete = models.SET_NULL, 
+        null      = True, 
+        blank     = True
+    )
     text    = models.TextField()
     rating  = models.SmallIntegerField()
     like    = models.ManyToManyField('users.User', through='ReviewLike')
