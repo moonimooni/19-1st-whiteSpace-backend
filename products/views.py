@@ -45,51 +45,48 @@ class MainView(View):
 
 class ProductsView(View):
     def get(self, request):
-        try:
-            category_id = request.GET.get('category', None)
-            page        = request.GET.get('page', None)
+        try: 
+            category_id = int(request.GET.get('category', 0))
+            page        = int(request.GET.get('page', 0))
 
-            if page        : page        = int(page)
-            if category_id : category_id = int(category_id)
-
-            if not page or (page <= 0):
+            if not page:
                 return JsonResponse({'MESSAGE' : 'INVALID PAGINATION'}, status=400)
 
-            if category_id and not Category.objects.filter(id=int(category_id)).exists():
+            if category_id and not Category.objects.filter(id=category_id).exists():
                 return JsonResponse({'MESSAGE' : 'INVALID CATEGORY'}, status=404)
 
             if not category_id:
                 products_qs   = Product.objects.all()
                 category_name = 'ALL'
             else:
-                products_qs   = Product.objects.filter(category_id=int(category_id))
+                products_qs   = Product.objects.filter(category_id=category_id)
                 category_name = Category.objects.get(id=category_id).name
             
             products_count = products_qs.count()
 
             offset = (page - 1) * PAGING_LIMIT
             limit  = offset + PAGING_LIMIT
-
+            
             products_qs    = annotate_is_new(products_qs).order_by('-created_at')[offset:limit]
             products_stock = [calculate_stock(product) for product in products_qs]
 
             products = [
                 {
-                    'id' : product.id,
-                    'name' : product.name,
-                    'price' : product.price,
+                    'id'            : product.id,
+                    'name'          : product.name,
+                    'price'         : product.price,
                     'thumbnail_url' : product.thumbnail_url,
-                    'stock' : stock,
-                    'is_limited' : stock <= 20,
-                    'is_new' : product.is_new,
+                    'stock'         : stock,
+                    'is_limited'    : stock <= 20,
+                    'is_new'        : product.is_new,
                 } for product, stock in zip(products_qs, products_stock)
             ]
-
+            
             return JsonResponse({
                 'count'    : products_count, 
                 'category' : category_name,
                 'products' : products
             }, status=200)
-            
+
         except ValueError:
             return JsonResponse({'MESSAGE' : 'VALUE ERROR'}, status=400)

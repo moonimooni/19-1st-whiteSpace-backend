@@ -1,7 +1,7 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from .views import ProductsView
 
 urlpatterns = [
-    re_path(r'^(?:page=(?P<page>\d+))?$', ProductsView.as_view())
+    path('', ProductsView.as_view())
 ]
