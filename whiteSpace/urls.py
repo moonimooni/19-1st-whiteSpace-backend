@@ -15,8 +15,10 @@ Including another URLconf
 """
 
 from django.urls import path, include
+from products.views import MainView, NavView
 
 urlpatterns = [
+    path('nav', NavView.as_view()),
+    path('main', MainView.as_view()),
     path('users' ,include('users.urls'))
 ]
-
