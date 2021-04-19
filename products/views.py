@@ -2,8 +2,9 @@ from django.views         import View
 from django.http.response import JsonResponse
 from django.db.models     import Sum
 
-from .models import Category, Product, BannerImage
-from .utils  import annotate_is_new, calculate_stock
+from .models     import Category, Product, BannerImage
+from .utils      import annotate_is_new, calculate_stock
+from my_settings import PAGING_LIMIT
 
 class NavView(View):
     def get(self, request):
@@ -41,3 +42,49 @@ class MainView(View):
         ]
 
         return JsonResponse({'banner_images' : banner_images, 'best_sellers' : best_sellers}, status=200)
+
+class ProductsView(View):
+    def get(self, request):
+            category_id = request.GET.get('category', None)
+            page        = request.GET.get('page', None)
+
+            if page : page = int(page)
+
+            if not page or (page <= 0):
+                return JsonResponse({'MESSAGE' : 'INVALID PAGINATION'}, status=400)
+
+            if category_id and not Category.objects.filter(id=int(category_id)).exists():
+                return JsonResponse({'MESSAGE' : 'INVALID CATEGORY'}, status=404)
+
+            if not category_id:
+                products_qs   = Product.objects.all()
+                category_name = 'ALL'
+            else:
+                products_qs   = Product.objects.filter(category_id=int(category_id))
+                category_name = Category.objects.get(id=category_id).name
+            
+            products_count = products_qs.count()
+
+            offset = (page - 1) * PAGING_LIMIT
+            limit  = offset + PAGING_LIMIT
+
+            products_qs    = annotate_is_new(products_qs).order_by('-created_at')[offset:limit]
+            products_stock = [calculate_stock(product) for product in products_qs]
+
+            products = [
+                {
+                    'id' : product.id,
+                    'name' : product.name,
+                    'price' : product.price,
+                    'thumbnail_url' : product.thumbnail_url,
+                    'stock' : stock,
+                    'is_limited' : stock <= 20,
+                    'is_new' : product.is_new,
+                } for product, stock in zip(products_qs, products_stock)
+            ]
+
+            return JsonResponse({
+                'count'    : products_count, 
+                'category' : category_name,
+                'products' : products
+            }, status=200)
