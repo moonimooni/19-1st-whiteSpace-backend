@@ -21,8 +21,6 @@ class CartView(View):
                 defaults  = {'total_price' : 0}
             )
 
-            existing_products = []
-
             for product in products:
                 product_id    = product['product_id']
                 bundle_id     = product.get('bundle_id', None)
