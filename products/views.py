@@ -45,10 +45,12 @@ class MainView(View):
 
 class ProductsView(View):
     def get(self, request):
+        try:
             category_id = request.GET.get('category', None)
             page        = request.GET.get('page', None)
 
-            if page : page = int(page)
+            if page        : page        = int(page)
+            if category_id : category_id = int(category_id)
 
             if not page or (page <= 0):
                 return JsonResponse({'MESSAGE' : 'INVALID PAGINATION'}, status=400)
@@ -88,3 +90,6 @@ class ProductsView(View):
                 'category' : category_name,
                 'products' : products
             }, status=200)
+            
+        except ValueError:
+            return JsonResponse({'MESSAGE' : 'VALUE ERROR'}, status=400)
