@@ -68,7 +68,7 @@ class ProductsView(View):
                 products_qs = products_qs.filter(
                     Q(name__icontains        = search) |
                     Q(description__icontains = search)
-                ).distinct()
+                )
             
             products_count = products_qs.count()
 
