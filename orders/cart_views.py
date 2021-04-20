@@ -86,3 +86,41 @@ class CartView(View):
             'cart'        : cart_products, 
             'total_price' : cart.total_price
         }, status=200)
+
+    @login_decorator
+    def patch(self, request, item_id=None):
+        try:
+            user        = request.user
+            data        = json.loads(request.body)
+            quantity    = data['quantity']
+            item_id     = item_id
+
+            if not item_id:
+                return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
+
+            cart = user.order_set.filter(status__name='장바구니').first()
+
+            if not cart:
+                return JsonResponse({'MESSAGE' : 'INVALID CART'}, status=404)
+
+            order_product = cart.orderproduct_set.filter(id=item_id).first()
+
+            if not order_product:
+                return JsonResponse({'MESSAGE' : 'INVALID ITEM'}, status=404)
+
+            price = order_product.product.price
+
+            if order_product.bundle:
+                price += order_product.bundle.price_gap
+
+            cart.total_price += (price * quantity)
+
+            order_product.quantity += quantity
+            
+            order_product.save()
+            cart.save()
+
+            return JsonResponse({'MESSAGE' : 'SUCCCESS'}, status=204)
+
+        except KeyError:
+            return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
