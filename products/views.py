@@ -1,6 +1,6 @@
 from django.views         import View
 from django.http.response import JsonResponse
-from django.db.models     import Sum
+from django.db.models     import Sum, Q
 
 from .models     import Category, Product, BannerImage
 from .utils      import annotate_is_new, calculate_stock
@@ -45,9 +45,10 @@ class MainView(View):
 
 class ProductsView(View):
     def get(self, request):
-        try: 
+        try:
             category_id = int(request.GET.get('category', 0))
             page        = int(request.GET.get('page', 0))
+            search      = request.GET.get('search', None)
 
             if not page:
                 return JsonResponse({'MESSAGE' : 'INVALID PAGINATION'}, status=400)
@@ -58,9 +59,16 @@ class ProductsView(View):
             if not category_id:
                 products_qs   = Product.objects.all()
                 category_name = 'ALL'
-            else:
+
+            if category_id:
                 products_qs   = Product.objects.filter(category_id=category_id)
                 category_name = Category.objects.get(id=category_id).name
+
+            if search:
+                products_qs = products_qs.filter(
+                    Q(name__icontains        = search) |
+                    Q(description__icontains = search)
+                ).distinct()
             
             products_count = products_qs.count()
 
