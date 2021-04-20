@@ -54,3 +54,35 @@ class CartView(View):
 
         except KeyError:
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
+
+    @login_decorator
+    def get(self, request):
+        user = request.user
+
+        cart, created = user.order_set.get_or_create(
+            status_id = 1,
+            defaults  = {'total_price' : 0}
+        )
+
+        cart_products = [
+            {
+                "product_id"       : product.product_id,
+                "thumbnail_image"  : product.product.thumbnail_url,
+                "name"             : product.product.name,
+                "order_product_id" : product.id,
+                "bundle_id"        : product.bundle_id if product.bundle else None,
+                "bundle_name"      : product.bundle.name if product.bundle else None,
+                "color_size_id"    : product.color_size_id if product.color_size else None,
+                "color_name"       : product.color_size.color.name if product.color_size else None,
+                "size_name"        : product.color_size.size.name if product.color_size else None,
+                "default_price"    : product.product.price,
+                "price_gap"        : product.bundle.price_gap if product.bundle else 0,
+                "quantity"         : product.quantity
+            } for product in cart.orderproduct_set.all()
+        ]
+        
+        return JsonResponse({
+            'cart_id'     : cart.id,
+            'cart'        : cart_products, 
+            'total_price' : cart.total_price
+        }, status=200)
