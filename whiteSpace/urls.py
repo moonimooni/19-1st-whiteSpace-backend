@@ -18,6 +18,7 @@ from django.urls import path, include
 from products.views import MainView, NavView
 
 urlpatterns = [
+    path('products', include('reviews.urls')),
     path('users' ,include('users.urls')),
     path('orders', include('orders.urls')),
     path('nav', NavView.as_view()),
