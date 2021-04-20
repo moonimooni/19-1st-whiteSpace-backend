@@ -52,3 +52,35 @@ class ReviewView(View):
 
         except KeyError:
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
+
+    def get(self, request, product_id=None):
+        if not product_id or not Product.objects.filter(id=product_id).exists():
+            return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
+        
+        product = Product.objects.get(id=product_id)
+
+        reviews = list(
+            {
+                'product_name'  : review.product.name,
+                'thumbnail_url' : review.product.thumbnail_url,
+                'author'        : review.author.name,
+                'text'          : review.text,
+                'rating'        : review.rating,
+                'bundle'        : review.bundle.name if review.bundle else None,
+                'color'         : review.color_size.color.name if review.color_size else None,
+                'size'          : review.color_size.size.name if review.color_size else None,
+                'image_urls'    : [image.image_url for image in review.reviewimage_set.all()]
+            } for review in product.review_set.all()
+        )
+
+        count   = product.review_set.count()
+        ratings = [product.review_set.filter(rating=i+1).count() for i in range(5)]
+
+        return JsonResponse({
+            'count'   : count, 
+            'reviews' : reviews, 
+            'one'     : ratings[0], 
+            'two'     : ratings[1], 
+            'three'   : ratings[2], 
+            'four'    : ratings[3], 
+            'five'    : ratings[4]}, status=200)
