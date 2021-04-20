@@ -21,6 +21,7 @@ urlpatterns = [
     path('users' ,include('users.urls')),
     path('cart', include('orders.urls')),
     path('orders', include('orders.urls')),
+    path('products', include('reviews.urls')),
     path('products', include('products.urls')),
     path('nav', NavView.as_view()),
     path('main', MainView.as_view()),
