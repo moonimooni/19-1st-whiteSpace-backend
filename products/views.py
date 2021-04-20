@@ -90,3 +90,48 @@ class ProductsView(View):
 
         except ValueError:
             return JsonResponse({'MESSAGE' : 'VALUE ERROR'}, status=400)
+
+class ProductView(View):
+    def get(self, request, product_id=None):
+        if not product_id or not Product.objects.filter(id=product_id).exists():
+            return JsonResponse({'MESSAGE' : 'PRODUCT NOT FOUND'}, status=404)
+        
+        product = Product.objects.get(id=product_id)
+
+        product_info = {
+            'category_id'   : product.category_id,
+            'product_id'    : product.id,
+            'name'          : product.name,
+            'price'         : product.price,
+            'discount_rate' : product.discount_rate,
+
+            'colors' : [{
+                'id' : color.id,
+                'name' : color.name,
+                'hex_code' : color.hex_code,
+                'stock' :sum(product.colorsizeoption_set.filter(color=color).values_list('stock',flat=True))
+            } for color in set(product.color.all())],
+
+            'sizes' : [{
+                'id' : size.id,
+                'name' : size.name
+            } for size in set(product.size.all())],
+
+            'bundles' : [{
+                'id' : bundle.id,
+                'name' : bundle.name,
+                'price_gap' : bundle.price_gap,
+                'stock' : bundle.stock
+            } for bundle in product.bundleoption_set.all()],
+
+            'sub_images' : [
+                sub_image.image_url for sub_image in product.subimage_set.all()
+            ],
+
+            'description_images' : [
+                description_image.image_url for 
+                description_image in product.descriptionimage_set.order_by('sequence')
+            ]
+        }
+
+        return JsonResponse({'product' : product_info}, status=200)
