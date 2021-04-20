@@ -14,8 +14,8 @@ class ReviewView(View):
             user          = request.user
             data          = json.loads(request.body)
             product_id    = product_id
-            color_size_id = data.get(data['color_size_id'], None)
-            bundle_id     = data.get(data['bundle_id'], None)
+            color_size_id = data.get('color_size_id', None)
+            bundle_id     = data.get('bundle_id', None)
             text          = data['text']
             rating        = data['rating']
             image_urls    = data['image_urls']
