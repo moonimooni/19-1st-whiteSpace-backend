@@ -76,7 +76,7 @@ class CartView(View):
                 "color_name"       : product.color_size.color.name if product.color_size else None,
                 "size_name"        : product.color_size.size.name if product.color_size else None,
                 "default_price"    : product.product.price,
-                "price_gap"        : product.bundle.price_gap if product.bundle else 0,
+                "price_gap"        : product.bundle.price_gap if product.bundle else "0.00",
                 "quantity"         : product.quantity
             } for product in cart.orderproduct_set.all()
         ]
