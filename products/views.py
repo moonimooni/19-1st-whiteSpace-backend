@@ -1,9 +1,9 @@
 from django.views         import View
 from django.http.response import JsonResponse
-from django.db.models     import Sum
+from django.db.models     import Sum, Q
 
 from .models     import Category, Product, BannerImage
-from .utils      import annotate_is_new, calculate_stock
+from .utils      import annotate_is_new, calculate_stock, return_products_list
 from my_settings import PAGING_LIMIT
 
 class NavView(View):
@@ -28,24 +28,13 @@ class MainView(View):
         )
 
         products_stock = [calculate_stock(product) for product in best_sellers_qs]
-
-        best_sellers = [
-            {
-                'id' : product.id,
-                'name' : product.name,
-                'price' : product.price,
-                'thumbnail_url' : product.thumbnail_url,
-                'stock' : stock,
-                'is_limited' : stock <= 20,
-                'is_new' : product.is_new,
-            } for product, stock in zip(best_sellers_qs, products_stock)
-        ]
+        best_sellers   = return_products_list(best_sellers_qs, products_stock)
 
         return JsonResponse({'banner_images' : banner_images, 'best_sellers' : best_sellers}, status=200)
 
 class ProductsView(View):
     def get(self, request):
-        try: 
+        try:
             category_id = int(request.GET.get('category', 0))
             page        = int(request.GET.get('page', 0))
 
@@ -58,7 +47,8 @@ class ProductsView(View):
             if not category_id:
                 products_qs   = Product.objects.all()
                 category_name = 'ALL'
-            else:
+
+            if category_id:
                 products_qs   = Product.objects.filter(category_id=category_id)
                 category_name = Category.objects.get(id=category_id).name
             
@@ -70,17 +60,7 @@ class ProductsView(View):
             products_qs    = annotate_is_new(products_qs).order_by('-created_at')[offset:limit]
             products_stock = [calculate_stock(product) for product in products_qs]
 
-            products = [
-                {
-                    'id'            : product.id,
-                    'name'          : product.name,
-                    'price'         : product.price,
-                    'thumbnail_url' : product.thumbnail_url,
-                    'stock'         : stock,
-                    'is_limited'    : stock <= 20,
-                    'is_new'        : product.is_new,
-                } for product, stock in zip(products_qs, products_stock)
-            ]
+            products = return_products_list(products_qs, products_stock)
             
             return JsonResponse({
                 'count'    : products_count, 
