@@ -22,23 +22,30 @@ class CartView(View):
             )
 
             for product in products:
-                product_id    = product['product_id']
-                bundle_id     = product.get('bundle_id', None)
-                color_size_id = product.get('color_size_id', None)
-                quantity      = product['quantity']
+                product_id = product['product_id']
+                bundle_id  = product.get('bundle_id', None)
+                color_id   = product.get('color_id', None)
+                size_id    = product.get('size_id' , None)
+                quantity   = product['quantity']
 
                 if not Product.objects.filter(id=product_id).exists():
                     return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
 
                 product = Product.objects.get(id=product_id)
 
-                if (bundle_id and not product.bundleoption_set.filter(id=bundle_id).exists()) or \
-                    (color_size_id and not product.colorsizeoption_set.filter(id=color_size_id).exists()):
-                        return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
+                if color_id and size_id:
+                    color_size = product.colorsizeoption_set.filter(
+                        color_id = color_id, 
+                        size_id  = size_id
+                    ).first()
+
+                if not (color_size) or \
+                (bundle_id and not product.bundleoption_set.filter(id=bundle_id).exists()):
+                    return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
 
                 product, created = cart.orderproduct_set.get_or_create(
                     product_id    = product_id,
-                    color_size_id = color_size_id,
+                    color_size_id = color_size.id,
                     bundle_id     = bundle_id,
                     defaults      = {'quantity' : quantity}
                 )
