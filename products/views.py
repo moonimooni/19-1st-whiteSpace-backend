@@ -48,7 +48,6 @@ class ProductsView(View):
         try:
             category_id = int(request.GET.get('category', 0))
             page        = int(request.GET.get('page', 0))
-            search      = request.GET.get('search', None)
 
             if not page:
                 return JsonResponse({'MESSAGE' : 'INVALID PAGINATION'}, status=400)
@@ -63,12 +62,6 @@ class ProductsView(View):
             if category_id:
                 products_qs   = Product.objects.filter(category_id=category_id)
                 category_name = Category.objects.get(id=category_id).name
-
-            if search:
-                products_qs = products_qs.filter(
-                    Q(name__icontains        = search) |
-                    Q(description__icontains = search)
-                )
             
             products_count = products_qs.count()
 
