@@ -56,7 +56,6 @@ class ReviewView(View):
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
 
     def get(self, request, product_id=None):
-        print('에오')
         if not product_id or not Product.objects.filter(id=product_id).exists():
             return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
         
