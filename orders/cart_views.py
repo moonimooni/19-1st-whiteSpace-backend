@@ -124,3 +124,33 @@ class CartView(View):
 
         except KeyError:
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
+
+    @login_decorator
+    def delete(self, request):
+        try:
+            user           = request.user
+            delete_targets = request.GET.get('item_id')
+            delete_targets = list(map(int, delete_targets.split(',')))
+
+            cart = user.order_set.filter(status__name='장바구니').first()
+
+            if not cart:
+                return JsonResponse({'MESSAGE' : 'INVALID CART'}, status=404)
+
+            targets = cart.orderproduct_set.filter(id__in=delete_targets)
+            
+            for target in targets:
+                price = target.product.price
+
+                if target.bundle:
+                    price += target.bundle.price_gap
+
+                cart.total_price -= price * (target.quantity)
+            
+            targets.delete()
+            cart.save()
+
+            return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=204)
+            
+        except ValueError:
+            return JsonResponse({'MESSAGE' : 'VALUE ERROR'}, status=400)
