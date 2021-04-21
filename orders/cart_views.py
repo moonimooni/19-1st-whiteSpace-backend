@@ -138,16 +138,14 @@ class CartView(View):
                 return JsonResponse({'MESSAGE' : 'INVALID CART'}, status=404)
 
             targets = cart.orderproduct_set.filter(id__in=delete_targets)
+            
+            for target in targets:
+                price = target.product.price
 
-            targets_price = sum([
-                    order_product.quantity * (order_product.product.price + order_product.bundle.price_gap) 
-                if order_product.bundle 
-                else
-                    order_product.quantity * order_product.product.price
-                for order_product in targets
-            ])
+                if target.bundle:
+                    price += target.bundle.price_gap
 
-            cart.total_price -= targets_price
+                cart.total_price -= price * (target.quantity)
             
             targets.delete()
             cart.save()
