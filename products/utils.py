@@ -19,3 +19,17 @@ def calculate_stock(product_obj):
     color_sizes_stock = sum(product_obj.colorsizeoption_set.values_list('stock', flat=True))
 
     return bundles_stock + color_sizes_stock
+
+def return_products_list(products_qs, stock_qs):
+    return \
+        [
+            {
+                'id'            : product.id,
+                'name'          : product.name,
+                'price'         : product.price,
+                'thumbnail_url' : product.thumbnail_url,
+                'stock'         : stock,
+                'is_limited'    : stock <= 20,
+                'is_new'        : product.is_new,
+            } for product, stock in zip(products_qs, stock_qs)
+        ]
