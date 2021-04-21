@@ -1,11 +1,13 @@
 import json
 
+from django.db.models     import Count, Q
 from django.http.response import JsonResponse
-from django.views import View
+from django.views         import View
 
 from users.utils     import login_decorator
 from products.models import Product
 from .models         import Review, ReviewImage
+from .filters        import count_ratings
 
 class ReviewView(View):
     @login_decorator
@@ -54,10 +56,20 @@ class ReviewView(View):
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
 
     def get(self, request, product_id=None):
+        print('에오')
         if not product_id or not Product.objects.filter(id=product_id).exists():
             return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
         
-        product = Product.objects.get(id=product_id)
+        product_qs = Product.objects.filter(id=product_id)
+        product_qs = product_qs.annotate(
+            one   = count_ratings(1),
+            two   = count_ratings(2),
+            three = count_ratings(3),
+            four  = count_ratings(4),
+            five  = count_ratings(5)
+        )
+
+        product = product_qs.first()
 
         reviews = list(
             {
@@ -73,14 +85,13 @@ class ReviewView(View):
             } for review in product.review_set.all()
         )
 
-        count   = product.review_set.count()
-        ratings = [product.review_set.filter(rating=i+1).count() for i in range(5)]
+        count = product.review_set.count()
 
         return JsonResponse({
             'count'   : count, 
             'reviews' : reviews, 
-            'one'     : ratings[0], 
-            'two'     : ratings[1], 
-            'three'   : ratings[2], 
-            'four'    : ratings[3], 
-            'five'    : ratings[4]}, status=200)
+            'one'     : product.one, 
+            'two'     : product.two, 
+            'three'   : product.three, 
+            'four'    : product.four, 
+            'five'    : product.five}, status=200)
