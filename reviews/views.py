@@ -1,26 +1,30 @@
 import json
+import datetime
 
 from django.db.models     import Count, Q
 from django.http.response import JsonResponse
 from django.views         import View
 
-from users.utils     import login_decorator
-from products.models import Product
-from .models         import Review, ReviewImage
-from .filters        import count_ratings
+from users.utils         import login_decorator
+from products.models     import Product
+from .models             import Review, ReviewImage
+from .filters            import count_ratings
+from my_settings         import S3_CLIENT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME
 
 class ReviewView(View):
     @login_decorator
     def post(self, request, product_id=None):
         try:
-            user          = request.user
-            data          = json.loads(request.body)
+            s3_client = S3_CLIENT
+            user      = request.user
+            data      = request.POST
+
             product_id    = product_id
             color_size_id = data.get('color_size_id', None)
             bundle_id     = data.get('bundle_id', None)
             text          = data['text']
             rating        = data['rating']
-            image_urls    = data['image_urls']
+            images        = request.FILES.getlist('images', [])
 
             if not product_id or not Product.objects.filter(id=product_id).exists():
                 return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
@@ -41,14 +45,25 @@ class ReviewView(View):
                 rating        = rating
             )
 
-            review_images = [
-                ReviewImage(
-                    review = review,
-                    image_url = image_url
-                ) for image_url in image_urls
-            ]
+            for image in images:
+                now = str(datetime.datetime.now()).replace(' ', '')[:-7]
 
-            ReviewImage.objects.bulk_create(review_images)
+                s3_client.upload_fileobj(
+                    image,
+                    AWS_STORAGE_BUCKET_NAME,
+                    f'{now}.{image.name}',
+                    ExtraArgs = {
+                        "ContentType" : image.content_type
+                    }
+                )
+
+            review.reviewimage_set.bulk_create([
+                ReviewImage(
+                    image_url = f"http://{AWS_STORAGE_BUCKET_NAME}.s3.ap-northeast-2.amazonaws.com/{now}.{image.name}",
+                    review    = review
+                )
+                for image in images
+            ])
 
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=201)
 
