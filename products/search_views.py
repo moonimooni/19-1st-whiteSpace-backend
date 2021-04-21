@@ -10,7 +10,7 @@ class SearchView(View):
         keyword = request.GET.get('keyword', None)
 
         if not keyword:
-            return JsonResponse({'MESSAGE' : 'NO KEYWORD'})
+            return JsonResponse({'MESSAGE' : 'NO KEYWORD'}, status=400)
 
         if keyword:
             products_qs = Product.objects.filter(
