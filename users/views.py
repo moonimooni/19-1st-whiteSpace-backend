@@ -8,9 +8,8 @@ from django.http  import JsonResponse
 
 from .utils       import email_validator, password_validator, phone_validator
 from my_settings  import ALGORITHM, SECRET
-
+from .utils       import login_decorator
 from .models      import User
-
 
 class SignUpView(View):
     def post(self,request):
@@ -89,3 +88,23 @@ class CheckEmailView(View):
         
         except KeyError:
             return JsonResponse({'MESSAGE' : 'KEY ERROR'}, status=400)
+
+class OrderUserInfoView(View):
+    @login_decorator
+    def get(self, request):
+        user = request.user
+        
+        user_info = {
+            'name'           : user.name,
+            'phone_number'   : user.phone_number,
+            'email'          : user.email,            
+        }
+
+        address = user.address_set.filter(is_main=1)
+
+        if address:
+            user_info['postal_code']    = address.postal_code,
+            user_info['main_address']   = address.main_address,
+            user_info['detail_address'] = address.detail_address
+
+        return JsonResponse({'user_info' : user_info})
