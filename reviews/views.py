@@ -1,14 +1,14 @@
 import json
 import datetime
 
-from django.db.models     import Count, Q
+from django.db.models     import Avg
 from django.http.response import JsonResponse
 from django.views         import View
 
 from users.utils     import login_decorator
 from products.models import Product
 from .models         import Review, ReviewImage
-from .utils          import count_ratings, average_rating
+from .utils          import count_ratings
 from my_settings     import S3_CLIENT, AWS_STORAGE_BUCKET_NAME
 
 class ReviewView(View):
@@ -74,7 +74,9 @@ class ReviewView(View):
         if not product_id or not Product.objects.filter(id=product_id).exists():
             return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
         
-        product_qs = Product.objects.filter(id=product_id)
+        product_qs     = Product.objects.filter(id=product_id)
+        average_rating = product_qs.aggregate(average_rating = Avg('review__rating'))
+        
         product_qs = product_qs.annotate(
             one   = count_ratings(1),
             two   = count_ratings(2),
@@ -85,8 +87,10 @@ class ReviewView(View):
 
         product = product_qs.first()
 
-        reviews = list(
-            {
+        product_review = {
+            'count'   : product.review_set.count(), 
+
+            'reviews' : list({
                 'product_name'  : review.product.name,
                 'thumbnail_url' : review.product.thumbnail_url,
                 'author'        : review.author.name,
@@ -96,26 +100,18 @@ class ReviewView(View):
                 'color'         : review.color_size.color.name if review.color_size else None,
                 'size'          : review.color_size.size.name if review.color_size else None,
                 'image_urls'    : [image.image_url for image in review.reviewimage_set.all()]
-            } for review in product.review_set.all()
-        )
+            } for review in product.review_set.all()), 
 
-        count = product.review_set.count()
-
-        return JsonResponse({
-            'average_rating' : average_rating(
-                product.one,
-                product.two,
-                product.three,
-                product.four,
-                product.five
-            ),
-            'count'   : count, 
-            'reviews' : reviews, 
             'one'     : product.one, 
             'two'     : product.two, 
             'three'   : product.three, 
             'four'    : product.four, 
-            'five'    : product.five}, status=200)
+            'five'    : product.five
+        }
+
+        product_review.update(average_rating)
+
+        return JsonResponse(product_review, status=200)
 
 class ReviewAuthView(View):
     @login_decorator
