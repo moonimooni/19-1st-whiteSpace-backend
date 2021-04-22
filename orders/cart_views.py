@@ -35,6 +35,9 @@ class CartView(View):
                 product = Product.objects.get(id=product_id)
 
                 color_size = color_size_set(product, color_id, size_id, bundle_id)
+                
+                if not color_size:
+                    return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
 
                 product, created = cart.orderproduct_set.get_or_create(
                     product_id    = product_id,
