@@ -5,11 +5,11 @@ from django.db.models     import Count, Q
 from django.http.response import JsonResponse
 from django.views         import View
 
-from users.utils         import login_decorator
-from products.models     import Product
-from .models             import Review, ReviewImage
-from .filters            import count_ratings
-from my_settings         import S3_CLIENT, AWS_STORAGE_BUCKET_NAME
+from users.utils     import login_decorator
+from products.models import Product
+from .models         import Review, ReviewImage
+from .utils          import count_ratings, average_rating
+from my_settings     import S3_CLIENT, AWS_STORAGE_BUCKET_NAME
 
 class ReviewView(View):
     @login_decorator
@@ -102,6 +102,13 @@ class ReviewView(View):
         count = product.review_set.count()
 
         return JsonResponse({
+            'average_rating' : average_rating(
+                product.one,
+                product.two,
+                product.three,
+                product.four,
+                product.five
+            ),
             'count'   : count, 
             'reviews' : reviews, 
             'one'     : product.one, 
