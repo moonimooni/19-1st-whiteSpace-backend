@@ -113,7 +113,6 @@ class ReviewView(View):
 class ReviewAuthView(View):
     @login_decorator
     def get(self, request, product_id=None):
-        print('ss')
         if not product_id or not Product.objects.filter(id=product_id).exists():
             return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
 
