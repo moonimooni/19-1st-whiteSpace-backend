@@ -11,6 +11,6 @@ def color_size_set(product_obj, color_id, size_id, bundle_id):
 
     if not (color_size) or \
     (bundle_id and not product_obj.bundleoption_set.filter(id=bundle_id).exists()):
-        return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
+        return
 
     return color_size
