@@ -9,7 +9,7 @@ from users.utils         import login_decorator
 from products.models     import Product
 from .models             import Review, ReviewImage
 from .filters            import count_ratings
-from my_settings         import S3_CLIENT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME
+from my_settings         import S3_CLIENT, AWS_STORAGE_BUCKET_NAME
 
 class ReviewView(View):
     @login_decorator
@@ -109,3 +109,18 @@ class ReviewView(View):
             'three'   : product.three, 
             'four'    : product.four, 
             'five'    : product.five}, status=200)
+
+class ReviewAuthView(View):
+    @login_decorator
+    def get(self, request, product_id=None):
+        print('ss')
+        if not product_id or not Product.objects.filter(id=product_id).exists():
+            return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
+
+        user        = request.user
+        user_orders = user.order_set.filter(status__name='배송완료')
+
+        if user_orders.filter(product__id=product_id).exists():
+            return JsonResponse({'MESSAGE' : 'OK'}, status=200)
+            
+        return JsonResponse({'MESSAGE' : 'DENIED'}, status=401)
