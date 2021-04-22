@@ -3,6 +3,7 @@ import json
 from django.http.response import JsonResponse
 from django.views         import View
 
+from .utils          import color_size_set
 from .models         import OrderProduct
 from users.utils     import login_decorator
 from products.models import Product
@@ -22,23 +23,22 @@ class CartView(View):
             )
 
             for product in products:
-                product_id    = product['product_id']
-                bundle_id     = product.get('bundle_id', None)
-                color_size_id = product.get('color_size_id', None)
-                quantity      = product['quantity']
+                product_id = product['product_id']
+                bundle_id  = product.get('bundle_id', None)
+                color_id   = product.get('color_id', None)
+                size_id    = product.get('size_id' , None)
+                quantity   = product['quantity']
 
                 if not Product.objects.filter(id=product_id).exists():
                     return JsonResponse({'MESSAGE' : 'INVALID PRODUCT'}, status=404)
 
                 product = Product.objects.get(id=product_id)
 
-                if (bundle_id and not product.bundleoption_set.filter(id=bundle_id).exists()) or \
-                    (color_size_id and not product.colorsizeoption_set.filter(id=color_size_id).exists()):
-                        return JsonResponse({'MESSAGE' : 'INVALID OPTION'}, status=404)
+                color_size = color_size_set(product, color_id, size_id, bundle_id)
 
                 product, created = cart.orderproduct_set.get_or_create(
                     product_id    = product_id,
-                    color_size_id = color_size_id,
+                    color_size_id = color_size.id,
                     bundle_id     = bundle_id,
                     defaults      = {'quantity' : quantity}
                 )
