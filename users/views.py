@@ -107,4 +107,4 @@ class OrderUserInfoView(View):
             user_info['main_address']   = address.main_address,
             user_info['detail_address'] = address.detail_address
 
-        return JsonResponse({'user_info' : user_info})
+        return JsonResponse({'user_info' : user_info}, status=200)
