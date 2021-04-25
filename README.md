@@ -26,39 +26,44 @@ React를 사용한 '공백' 웹사이트 클론
 
 - FrontEnd
 
-    [https://img.shields.io/badge/-HTML/CSS-E44D26](https://img.shields.io/badge/-HTML/CSS-E44D26)
+    ![HTML](https://img.shields.io/badge/-HTML/CSS-E44D26)
 
-    [https://img.shields.io/badge/-SCSS-ff69b4](https://img.shields.io/badge/-SCSS-ff69b4)
+    ![https://img.shields.io/badge/-SCSS-ff69b4](https://img.shields.io/badge/-SCSS-ff69b4)
 
-    [https://img.shields.io/badge/-JavaScript(ES6%2B)-F0DB4D](https://img.shields.io/badge/-JavaScript(ES6%2B)-F0DB4D)
+    ![https://img.shields.io/badge/-JavaScript(ES6%2B)-F0DB4D](https://img.shields.io/badge/-JavaScript(ES6%2B)-F0DB4D)
 
-    [https://img.shields.io/badge/-React-blue](https://img.shields.io/badge/-React-blue)
+    ![https://img.shields.io/badge/-React-blue](https://img.shields.io/badge/-React-blue)
 
 - BackEnd
 
-    [https://img.shields.io/badge/-Python-376FA0](https://img.shields.io/badge/-Python-376FA0)
+    ![https://img.shields.io/badge/-Python-376FA0](https://img.shields.io/badge/-Python-376FA0)
 
-    [https://img.shields.io/badge/-Django-043829](https://img.shields.io/badge/-Django-043829)
+    ![https://img.shields.io/badge/-Django-043829](https://img.shields.io/badge/-Django-043829)
 
-    [https://img.shields.io/badge/-CORS%20Header-F0DB4D](https://img.shields.io/badge/-CORS%20Header-F0DB4D)
+    ![https://img.shields.io/badge/-CORS%20Header-F0DB4D](https://img.shields.io/badge/-CORS%20Header-F0DB4D)
 
-    [https://img.shields.io/badge/-Bcrypt-2A334C](https://img.shields.io/badge/-Bcrypt-2A334C)
+    ![https://img.shields.io/badge/-Bcrypt-2A334C](https://img.shields.io/badge/-Bcrypt-2A334C)
 
-    [https://img.shields.io/badge/-PyJWT-black](https://img.shields.io/badge/-PyJWT-black)
+    ![https://img.shields.io/badge/-PyJWT-black](https://img.shields.io/badge/-PyJWT-black)
 
-    [https://img.shields.io/badge/-MySQL-DD8A00](https://img.shields.io/badge/-MySQL-DD8A00)
+    ![https://img.shields.io/badge/-MySQL-DD8A00](https://img.shields.io/badge/-MySQL-DD8A00)
 
-    [https://img.shields.io/badge/-AqeuryTool-6A9CA7](https://img.shields.io/badge/-AqeuryTool-6A9CA7)
+    ![https://img.shields.io/badge/-AqeuryTool-6A9CA7](https://img.shields.io/badge/-AqeuryTool-6A9CA7)
+    
+    ![https://img.shields.io/badge/-RDS-brightgreen](https://img.shields.io/badge/-RDS-brightgreen)
 
-    [https://img.shields.io/badge/-S3-DA5041](https://img.shields.io/badge/-S3-DA5041)
+    ![https://img.shields.io/badge/-S3-DA5041](https://img.shields.io/badge/-S3-DA5041)
+    
+    ![https://img.shields.io/badge/-EC2-orange](https://img.shields.io/badge/-EC2-orange)
+    
 
 - 협업 도구
 
-    [https://img.shields.io/badge/-Slack-D91D57](https://img.shields.io/badge/-Slack-D91D57)
+    ![https://img.shields.io/badge/-Slack-D91D57](https://img.shields.io/badge/-Slack-D91D57)
 
-    [https://img.shields.io/badge/-Git-black](https://img.shields.io/badge/-Git-black)
+    ![https://img.shields.io/badge/-Git-black](https://img.shields.io/badge/-Git-black)
 
-    [https://img.shields.io/badge/-Trello-036AA7](https://img.shields.io/badge/-Trello-036AA7)
+    ![https://img.shields.io/badge/-Trello-036AA7](https://img.shields.io/badge/-Trello-036AA7)
 
 ---
 
